@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <name>tue_hsr</name>
+  <version>0.0.0</version>
+  <description>The tue_hsr package</description>
+
+  <maintainer email="hsr-user@todo.todo">hsr-user</maintainer>
+
+  <license>MIT</license>
+
+  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
