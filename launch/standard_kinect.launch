@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <arg name="gdb" default="false"/>
+    <arg if="$(arg gdb)" name="launch-prefix" value="gdb -ex run --args"/>
+    <arg unless="$(arg gdb)" name="launch-prefix" value=""/>
+
+    <node name="rgbd_encoder" pkg="rgbd" type="rgbd_server" output="screen" launch-prefix="$(arg launch-prefix)">
+        <remap from="cam_info" to="/hsrb/head_rgbd_sensor/rgb/hsrb/head_rgbd_sensor_info"/>
+        <remap from="rgb_image" to="/hsrb/head_rgbd_sensor/rgb/image_rect_color"/>
+        <remap from="depth_image" to="/hsrb/head_rgbd_sensor/depth_registered/hw_registered/image_rect_raw"/>
+        <remap from="output" to="/hsrb/head_rgbd_sensor/rgbd"/>
+    </node>
+
+</launch>
