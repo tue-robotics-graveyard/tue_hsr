@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+
+from hsrb_interface import Robot, ItemTypes
+
+with Robot() as robot:
+    omni_base = robot.get('omni_base')
+    omni_base.go(1, 2, math.pi / 2.0)
+    print(omni_base.pose)
