@@ -1,47 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-	<!-- Get the machine file -->
-	<arg name="machine" default="localhost"/>
-	<arg name="robot_env" default="$(optenv ROBOT_ENV robotics_testlabs)" />
-	<arg name="robot_real" value="$(optenv ROBOT_REAL false)" />
-	<arg name="faces_db" default="" />
-
-<!--	<include file="$(env ROBOT_BRINGUP_PATH)/machines/$(arg machine).machine" />-->
-
-	<arg name="config" default="world_modeling/world_model.yaml"/>
-
 	<!-- World model -->
-	<node name="ed" pkg="ed" type="ed" output="log"/>
-
-	<!-- Configure world model -->
-	<node name="ed_configure" pkg="ed" type="configure" args="$(find tue_hsr)/parameters/$(arg config)" output="log"/>
- 
-	<!-- Face recognition -->
-	<!--<group ns="face_recognition">
-		<node name="face_recognition" pkg="openface_ros" type="face_recognition_node" output="log" machine="$(arg machine)">
-			<rosparam command="load" file="$(env ROBOT_BRINGUP_PATH)/parameters/world_modeling/face_recognition.yaml" />
-			<param name="save_images" value="$(arg robot_real)" />
-			<param name="save_images_folder" value="~/MEGA/data/$(arg robot_env)/training_data" />
-			<param name="db" value="$(arg faces_db)" />
-		</node>
-	</group>-->
-
-	<!-- Object recognition -->
-	<!--<group ns="object_recognition">
-		<group if="$(arg robot_real)">
-			<node name="object_recognition" pkg="tensorflow_ros" type="object_recognition_node" output="log" machine="$(arg machine)">
-				<param name="graph_path" value="~/MEGA/data/$(arg robot_env)/models/tensorflow_ros/output_graph.pb" />
-				<param name="labels_path" value="~/MEGA/data/$(arg robot_env)/models/tensorflow_ros/output_labels.txt" />
-				<param name="save_images" value="$(arg robot_real)" />
-				<param name="save_images_folder" value="~/MEGA/data/$(arg robot_env)/training_data" />
-			</node>
-		</group>
-		<group unless="$(arg robot_real)">
-			<node name="object_recognition" pkg="ed_perception" type="object_recognition_dummy_node.py" output="log" machine="$(arg machine)">
-				<param name="labels_path" value="~/MEGA/data/$(arg robot_env)/models/tensorflow_ros/output_labels.txt" />
-			</node>
-		</group>
-	</group>-->
+	<node name="ed" pkg="ed" type="ed" output="screen" args="$(find tue_hsr)/parameters/world_model.yaml" output="log"/>
 
 </launch>

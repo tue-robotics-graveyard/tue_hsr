@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
+
   <name>tue_hsr</name>
   <version>0.0.0</version>
   <description>The tue_hsr package</description>
@@ -11,5 +12,8 @@
   <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
 
   <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>ed_localization</exec_depend>
+  <exec_depend>ed_gui_server</exec_depend>
 
 </package>
