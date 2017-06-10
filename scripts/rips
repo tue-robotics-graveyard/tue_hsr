@@ -5,6 +5,7 @@ from hsrb_interface import Robot
 import rospy
 import math
 from WaitForDoorOpen import WaitForDoorOpen
+from ForceDrive import ForceDrive
 
 # Preparation to use robot functions
 robot = Robot()
@@ -13,11 +14,13 @@ tts = robot.try_get('default_tts')
 tts.language = tts.ENGLISH
 whole_body = robot.try_get('whole_body')
 waitForDoorOpen = WaitForDoorOpen(timeout = 10)
+forceDrive = ForceDrive()
 
 
 def drive_forward():
     try:
-        base.go(x=1, y=0, yaw=0, timeout=0.0, relative=True)
+        forceDrive.drive(vx=0.3, vy=0, vth=0, timeout=5)
+        #base.go(x=1, y=0, yaw=0, timeout=0.0, relative=True)
     except:
         rospy.logerr('Failed go')
     tts.say(u'Failed to go')
