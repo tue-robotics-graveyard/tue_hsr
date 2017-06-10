@@ -12,10 +12,10 @@ plugins:
       joint_topics:
         - topic: /hsrb/joint_states 
 
-- name: gui_server
-  lib: libed_gui_server_plugin.so
-  parameters:
-      robot_name: hsr
+#- name: gui_server
+#  lib: libed_gui_server_plugin.so
+#  parameters:
+#      robot_name: hsr
 
 - name: navigation
   lib: libed_navigation_plugin.so
@@ -66,8 +66,9 @@ plugins:
 #      max_gap_size: 10
 
 - name: perception
-  #lib: libed_perception_plugin.so
-  lib: libed_perception_plugin_image_recognition.so
+#
+#  #lib: libed_perception_plugin.so
+#  lib: libed_perception_plugin_image_recognition.so
 
 - name: localization
   lib: libed_localization_plugin.so
