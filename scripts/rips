@@ -1,8 +1,43 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-from hsrb_interface import Robot, ItemTypes
+from hsrb_interface import Robot
+import rospy
+import math
+from WaitForDoorOpen import WaitForDoorOpen
 
-with Robot() as robot:
-    omni_base = robot.get('omni_base')
-    omni_base.go(1, 2, math.pi / 2.0)
-    print(omni_base.pose)
+# Preparation to use robot functions
+robot = Robot()
+base = robot.try_get('omni_base')
+tts = robot.try_get('default_tts')
+tts.language = tts.ENGLISH
+whole_body = robot.try_get('whole_body')
+waitForDoorOpen = WaitForDoorOpen(timeout = 10)
+
+
+def drive_forward():
+    try:
+        base.go(x=1, y=0, yaw=0, timeout=0.0, relative=True)
+    except:
+        rospy.logerr('Failed go')
+    tts.say(u'Failed to go')
+
+############################## initializing program ##############################
+if __name__=='__main__':
+    # Move to initial posture
+
+    # Greet
+    tts.say(u'Hi. My name is HSR. Please open the door.')
+
+    door_state = waitForDoorOpen.run()
+
+    if door_state=="no_door":
+        tts.say(u'No door found. I will stop now')
+    elif door_state=='open':
+        tts.say(u'Thank you for opening the door. I will drive forward now')
+        drive_forward()
+    else:
+        tts.say(u'The door is still closed. I will stop now')
+
+    tts.say(u'Please say continue')
+    tts.say(u'Finished, stopping')
