@@ -1,0 +1,22 @@
+<launch>
+ 
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+
+    <rosparam file="$(find tue_hsr)/parameters/costmap_common.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find tue_hsr)/parameters/costmap_common.yaml" command="load" ns="local_costmap" />
+    
+    <rosparam file="$(find tue_hsr)/parameters/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find tue_hsr)/parameters/global_costmap_params.yaml" command="load" />
+    
+    <rosparam file="$(find tue_hsr)/parameters/base_local_planner.yaml" command="load" />
+    <rosparam file="$(find tue_hsr)/parameters/move_base.yaml" command="load" />
+    
+    <param name="base_global_planner" type="string" value="navfn/NavfnROS" />
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+
+    <remap from="cmd_vel" to="/hsrb/command_velocity" />
+    <remap from="odom" to="/hsrb/wheel_odom" />
+
+  </node>
+
+</launch>

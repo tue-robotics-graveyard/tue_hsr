@@ -2,6 +2,6 @@
 <launch>
 
 	<!-- World model -->
-	<node name="ed" pkg="ed" type="ed" output="screen" args="$(find tue_hsr)/parameters/world_model.yaml" output="log"/>
+	<node name="ed" pkg="ed" type="ed" output="screen" args="$(find tue_hsr)/parameters/world_model.yaml" />
 
 </launch>

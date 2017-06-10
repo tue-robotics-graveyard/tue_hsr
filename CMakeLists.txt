@@ -6,7 +6,7 @@ project(tue_hsr)
 
 find_package(catkin REQUIRED)
 
-# catkin_python_setup()
+catkin_python_setup()
 
 catkin_package(
 #  INCLUDE_DIRS include

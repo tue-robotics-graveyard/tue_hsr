@@ -1,0 +1,43 @@
+DWAPlannerROS:
+  global_frame_id: map
+
+  min_trans_vel: 0.05
+  max_trans_vel: 0.55
+  
+  acc_lim_x: 1.0
+  acc_lim_y: 1.0
+  acc_limit_trans: 0.3
+  acc_lim_theta: 0.5
+  
+  min_vel_x: -0.5
+  max_vel_x: 0.5
+  
+  min_vel_y: -0.5
+  max_vel_y: 0.5
+  
+  min_rot_vel: 0.4
+  max_rot_vel: 1.0
+    
+  forward_point_distance: 0.325
+  goal_distance_bias: 24.0
+  
+  prune_plan: true
+  
+  rot_stopped_vel: 0.1
+  scaling_speed: 0.25
+  
+  sim_granularity: 0.1
+  angular_sim_granularity: 0.1
+  sim_time: 2.5
+  
+  use_dwa: true
+  
+  vth_samples: 10
+  vx_samples: 10
+  vy_samples: 10
+  
+  xy_goal_tolerance: 0.2
+  yaw_goal_tolerance: 0.2
+
+  publish_traj_pc: true
+  publish_cost_grid_pc: true
