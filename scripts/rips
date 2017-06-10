@@ -15,7 +15,7 @@ tts.language = tts.ENGLISH
 whole_body = robot.try_get('whole_body')
 waitForDoorOpen = WaitForDoorOpen(timeout = 10)
 forceDrive = ForceDrive()
-
+#ed = robot.get('ed')  # Worldmodel
 
 def drive_forward():
     try:
