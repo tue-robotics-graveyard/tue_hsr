@@ -4,48 +4,70 @@
 from ForceDrive import ForceDrive
 import rospy
 import math
+import time
 import rospy; import actionlib; from control_msgs.msg import FollowJointTrajectoryGoal, FollowJointTrajectoryAction; from actionlib import SimpleActionClient, GoalStatus; from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from dynamic_reconfigure.server import Server
+from tue_hsr.cfg import ArmConfig
+from hsrb_interface import Robot
+robot = Robot()
+gripper = robot.get('gripper')
 
+fd = ForceDrive()
 angle = math.pi / 2
-angular_velocity = 0.5
+angular_velocity = .5
+
+ac = actionlib.SimpleActionClient('/hsrb/arm_trajectory_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
+rospy.loginfo("Waiting for actionserver ...")
+ac.wait_for_server()
+
+joint_names = ['arm_flex_joint', 'arm_lift_joint', 'arm_roll_joint', 'wrist_flex_joint', 'wrist_roll_joint']
+def send_joint_goals(positions):
+    joint_traj = JointTrajectory(joint_names=joint_names, points=[JointTrajectoryPoint(positions=positions, time_from_start=rospy.Duration(.1))])
+    rospy.loginfo("Sending Joint trajectory")
+    rospy.loginfo(joint_traj)
+    ac.send_goal_and_wait(FollowJointTrajectoryGoal(trajectory=joint_traj, goal_time_tolerance=rospy.Duration(10)))
+
 
 def cycle():
+    # Init
+    gripper.command(1.2)
+    send_joint_goals([-0.9622926371690561, 0.17419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523])
+
     # @ Beer
-    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.5, "arm_roll_joint": -0.3, "arm_lift_joint": 0.1})
-    #gripper.command(-0.25)
+    send_joint_goals([-0.9622926371690561, 0.12419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523])
+    time.sleep(2)
+    gripper.grasp(-0.5)
 
     # retract
-    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.0, "arm_roll_joint": 0})
+    send_joint_goals([-0.9622926371690561, 0.47419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523])
+    time.sleep(0.5)
 
     # turn
     fd.drive(0, 0, angular_velocity, abs(angle / angular_velocity))
 
     # Place in basket
-    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.5, "arm_roll_joint": -0.3, "arm_lift_joint": 0.1})
-    #gripper.command(1.2)
-
-    # retract
-    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.0, "arm_roll_joint": 0})
+    gripper.command(1.2)
 
     # turn back
     fd.drive(0, 0, -angular_velocity, abs(angle / angular_velocity))
 
-import rospy
-
-from dynamic_reconfigure.server import Server
-from tue_hsr.cfg import ArmConfig
-
-rospy.init_node("test", anonymous = True)
-ac = actionlib.SimpleActionClient('/hsrb/arm_trajectory_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
-
 def callback(config, level):
-    joint_names = ['arm_roll_joint', 'arm_lift_joint', 'arm_flex_joint', 'wrist_flex_joint', 'wrist_roll_joint']
     positions = []
     for joint_name in joint_names:
         positions.append(config[joint_name])
         
-    ac.send_goal_and_wait(FollowJointTrajectoryGoal(trajectory=JointTrajectory(joint_names=joint_names, points=[JointTrajectoryPoint(positions=positions, time_from_start=rospy.Duration(1))]), goal_time_tolerance=rospy.Duration(10)))
+    send_joint_goals(positions)
+
     return config
 
+
 srv = Server(ArmConfig, callback)
+rospy.loginfo("Connected :) ...")
+
+cycle()
+cycle()
+cycle()
+cycle()
+cycle()
+
 rospy.spin()
