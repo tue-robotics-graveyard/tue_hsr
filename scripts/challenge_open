@@ -1,0 +1,44 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from ForceDrive import ForceDrive
+import rospy
+import math
+
+angle = math.pi / 2
+angular_velocity = 0.5
+
+def cycle():
+    # @ Beer
+    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.5, "arm_roll_joint": -0.3, "arm_lift_joint": 0.1})
+    #gripper.command(-0.25)
+
+    # retract
+    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.0, "arm_roll_joint": 0})
+
+    # turn
+    fd.drive(0, 0, angular_velocity, abs(angle / angular_velocity))
+
+    # Place in basket
+    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.5, "arm_roll_joint": -0.3, "arm_lift_joint": 0.1})
+    #gripper.command(1.2)
+
+    # retract
+    #whole_body.move_to_joint_positions({"arm_flex_joint": -0.0, "arm_roll_joint": 0})
+
+    # turn back
+    fd.drive(0, 0, -angular_velocity, abs(angle / angular_velocity))
+
+import rospy
+
+from dynamic_reconfigure.server import Server
+from tue_hsr.cfg import ArmConfig
+
+def callback(config, level):
+    print config
+    return config
+
+rospy.init_node("test", anonymous = True)
+
+srv = Server(ArmConfig, callback)
+rospy.spin()
