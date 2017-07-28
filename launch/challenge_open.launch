@@ -9,9 +9,12 @@
     </node>
 
     <node name="trigger_client" pkg="multirobot_communication" type="trigger_client.py" output="screen" respawn="true">
-        <param name="ip" value="amigo2" />
+        <param name="ip" value="Precision" />
         <param name="port" value="3000" />
         <param name="remote_robot_name" value="amigo" />
+    </node>
+
+    <node name="challenge_open" pkg="tue_hsr" type="challenge_open" output="screen" respawn="true">
     </node>
 
 </launch>

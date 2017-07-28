@@ -1,18 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import time
+import re
+
 from ForceDrive import ForceDrive
 import rospy
 import math
-import time
+import sys
 import rospy; import actionlib; from control_msgs.msg import FollowJointTrajectoryGoal, FollowJointTrajectoryAction; from actionlib import SimpleActionClient, GoalStatus; from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from dynamic_reconfigure.server import Server
 import inspect
 from tue_hsr.cfg import ArmConfig
 from hsrb_interface import Robot
 robot = Robot()
 gripper = robot.get('gripper')
+
+rospy.loginfo("Challenge open started ...")
 
 fd = ForceDrive()
 angle = math.pi / 2
@@ -26,6 +31,8 @@ joint_names = ['arm_flex_joint', 'arm_lift_joint', 'arm_roll_joint', 'wrist_flex
 duration = rospy.get_param('~duration', 4)
 
 BASE_ANGLE = 0
+
+rospy.loginfo("Starting open challenge")
 
 def send_joint_goals(positions, base_angle=0, duration=duration):
     global BASE_ANGLE
@@ -46,45 +53,55 @@ def send_joint_goals(positions, base_angle=0, duration=duration):
     ac.send_goal_and_wait(FollowJointTrajectoryGoal(trajectory=joint_traj, goal_time_tolerance=rospy.Duration(duration)))
 
 def neutral():
-    send_joint_goals([-0.00010263716905622999, -1.7658090675429228e-07, -1.6167963425850473e-06, -1.5699983769215975, 0.00010423015252269963], 0)
+    send_joint_goals([-0.00010263716905622999, 0.274090675429228, -1.6167963425850473e-06, -1.5699983769215975, 0.00010423015252269963], .1)
 
 def pre_grasp():
     # Init
     gripper.command(1.2)
-    send_joint_goals([-0.9622926371690561, 0.27419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], 0)
+    send_joint_goals([-0.9622926371690561, 0.27419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], 0, .1)
 
 def grasp_beer():
     # @ Beer
-    send_joint_goals([-0.9622926371690561, 0.12419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], 0)
+    send_joint_goals([-0.9622926371690561, 0.12419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], 0, 1)
     gripper.grasp(-0.5)
 
     # retract
-    send_joint_goals([-0.9622926371690561, 0.47419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], 0)
+    send_joint_goals([-0.9622926371690561, 0.47419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], 0, 1)
 
 def place():
     # Place in basket
-    send_joint_goals([-0.9622926371690561, 0.27419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], math.pi / 2, .1)
+    send_joint_goals([-0.9622926371690561, 0.27419993036029925, -0.8250026167963427, -1.8909963769215974, 1.154806230152523], math.pi + math.pi / 6, 2)
     gripper.command(1.2)
 
-def cycle():
-    pre_grasp()
+def cycle(num):
+    for _ in range(0, num):
+        pre_grasp()
+        
+        grasp_beer()
     
-    grasp_beer()
-
-    place()
-
+        place()
+    
     neutral()
 
 def trigger(msg):
     cmd = msg.data 
-    rospy.loginfo("Received trigger: %s", cmd)
-    g = globals()
-    functions = [k for k,v in g.iteritems() if inspect.isfunction(v)] 
-    if cmd in functions:
-        eval("%s()" % cmd)
-        rospy.loginfo("Executing function %s()" % cmd)
+
+    s = re.search("(\w+)\(\w*\)", cmd)
+    if s:
+        func = s.group(1)
+        rospy.loginfo("Received trigger: %s", cmd)
+        g = globals()
+        functions = [k for k,v in g.iteritems() if inspect.isfunction(v)] 
+        if func in functions:
+            try:
+                eval("%s()" % cmd)
+                rospy.loginfo("Executing function %s", cmd)
+            except:
+                rospy.logerr("Failed to execute %s", cmd)
+        else:
+            rospy.logerr("Received non-existing function")
     else:
-        rospy.logerr("Received invalid cmd")
+        rospy.logerr("Invalid function call")
 
 def reconfigure_callback(config, level):
     positions = []
@@ -95,10 +112,18 @@ def reconfigure_callback(config, level):
 
     return config
 
+EXIT = False
+def emergency(msg):
+    global EXIT
+    if msg.data:
+        EXIT = True 
 
 srv = Server(ArmConfig, reconfigure_callback)
 sub = rospy.Subscriber("/hsrb/trigger", String, trigger)
+sub_em = rospy.Subscriber("/hsrb/runstop_button", Bool, emergency)
 rospy.loginfo("Connected :) ...")
+
+rospy.loginfo("Initialized")
 
 neutral()
 pre_grasp()
@@ -107,4 +132,8 @@ neutral()
 
 rospy.loginfo("Now we are waiting for the trigger ...")
 
-rospy.spin()
+while not rospy.is_shutdown():
+    rospy.sleep(0.5)
+    if EXIT:
+        rospy.logerr("Killing the node (emergency pressed)")
+        sys.exit(1)
